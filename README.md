@@ -4,9 +4,9 @@ Given a input DB, mine strong association rules from the input DB with user-defi
 
 ## Input
 ## User input
-* min_supp: minimum support in percentage. 
+* min_supp: minimum support in percentage. <br>
 Support(B) = (Transactions containing (B))/(Total Transactions)
-* min_conf: minimum confidence in percentage. 
+* min_conf: minimum confidence in percentage. <br>
 Confidence(A→B) = (Transactions containing both (A and B))/(Transactions containing A)
 
 > Example User input: 
