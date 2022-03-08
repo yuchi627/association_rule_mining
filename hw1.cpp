@@ -3,68 +3,8 @@
 #include<set>
 #include<sstream> 
 #include<fstream>
-#include<bits/stdc++.h>
-#include <ctime>
+#include <vector>
 using namespace std;
-
-void print_set(set<int> &printset){
-    cout << "{";
-    for (auto it = printset.begin(); it != printset.end(); ++it) {
-        cout << *it << " ";
-    }
-    cout << "}";
-}
-void print_map(map<set<int>, set<int>> &feq_item){
-    cout << "print feq_item map" << endl;
-    for (auto it = feq_item.begin(); it != feq_item.end(); ++it){
-        for (const auto &s : it->first) {
-            cout << s << " ";
-        }
-        cout<< " : ";
-        for (const auto &s : it->second) {
-            cout << s << " ";
-        }
-        cout<< endl;
-    }
-}
-
-void print_feq_item(map<set<int>, set<int>> &feq_item){
-    cout << "print feq_item" << endl;
-    for (auto it = feq_item.begin(); it != feq_item.end(); ++it){
-        cout << "{ ";
-        for (const auto &s : it->first) {
-            cout << s << " ";
-        }
-        cout << "} ";
-        cout<< endl;
-    }
-}
-
-void print_item_count(map<int, int> &item_count){
-    cout << "amount of item in set" << endl;
-    for (auto it = item_count.begin(); it != item_count.end(); ++it){
-        cout << it->first << " : " << it->second << endl;
-    }
-}
-
-void print_permutation_set(map<set<int>, set<set<int>>> &permutation_set){
-    cout << "print permutation_set" << endl;
-    for (auto it = permutation_set.begin(); it != permutation_set.end(); ++it){
-        for (const auto &s : it->first) {
-            cout << s << " ";
-        }
-        cout<< " : ";
-        for (const auto &s : it->second) {
-            cout << "{ ";
-            for (const auto &s_tmp : s) {
-                cout << s_tmp << " ";
-            }
-            cout << "} ";
-        }
-        cout<< endl;
-    }
-
-}
 
 float preprocess(map<set<int>, set<int>> &feq_item, map<int, int> &item_count, float min_supp){
     string filename = "input.txt";
@@ -156,18 +96,15 @@ void combo(const T& input_seq, int k, map<set<int>, set<set<int>>> &permutation_
 bool permutation_preprocess(map<int, int> &item_count, vector<int> &per_item, int per_thres){
     // ------ remove the item less than permutation threshold ------
     per_item.clear();
-    // vector<int> per_item;
     for (auto it = item_count.begin(); it != item_count.end(); ++it){
         if(it->second >= per_thres){
             per_item.push_back(it->first);
         }
-        // cout << it->first << " : " << it->second << endl;
     }
     bool flag = false;
     if(per_item.size() >= per_thres)
         flag = true;
     return flag;
-    // return per_item;
 }
 
 void find_freq(map<set<int>, set<int>> &feq_item){
@@ -175,12 +112,8 @@ void find_freq(map<set<int>, set<int>> &feq_item){
 }
 
 int main(){
-    time_t start, end;
-    start = time(NULL);
-
     map<set<int>, set<int>> feq_item;
     vector<int> per_item;
-    // set<set<int>> permutation_set;
     map<set<int>, set<set<int>>> permutation_set;
     map<int, int> item_count;
     bool cont_flag = false;
@@ -198,7 +131,7 @@ int main(){
     while(cont_flag){
         item_count.clear();
         combo(per_item, choice_amount+1, permutation_set);
-        // print_permutation_set(permutation_set);
+        // ------ find all Frequent itemsets ------
         for (auto it = permutation_set.begin(); it != permutation_set.end(); ++it){
             for (const auto &s : it->second) {
                 set<int> inter_set;
@@ -217,10 +150,10 @@ int main(){
     }
     ofstream output_file;
     output_file.open("out.txt");
+    // ------ use Frequent itemsets to find Strong Rules ------
     for (auto it1 = feq_item.begin(); it1 != feq_item.end(); ++it1){
         for (auto it2 = feq_item.begin(); it2 != feq_item.end(); ++it2){
             set<int> item_inter_set;
-            // set_intersection(feq_item[it1->first].begin(), feq_item[it1->first].end(), feq_item[it2->first].begin(), feq_item[it2->first].end(), insert_iterator<set<int>>(item_inter_set,item_inter_set.begin()));
             set_intersection(it1->first.begin(), it1->first.end(), it2->first.begin(), it2->first.end(), insert_iterator<set<int>>(item_inter_set,item_inter_set.begin()));
             if(item_inter_set.size() == 0){
                 set<int> inter_set;
@@ -228,15 +161,31 @@ int main(){
                 if (float(inter_set.size())/it1->second.size() > min_conf){
                     output_file << "{";
                     cout << "{";
+                    bool print_flag = true;
                     for (auto it = it1->first.begin(); it != it1->first.end(); ++it) {
-                        output_file << *it << " ";
-                        cout << *it << " ";
+                        if(print_flag){
+                            output_file << *it;
+                            cout << *it;
+                            print_flag = false;
+                        }
+                        else{
+                            output_file << ", "<< *it;
+                            cout << ", "<< *it;
+                        }
                     }
                     output_file << "} -> {";
                     cout << "} -> {";
+                    print_flag = true;
                     for (auto it = it2->first.begin(); it != it2->first.end(); ++it) {
-                        output_file << *it << " ";
-                        cout << *it << " ";
+                        if(print_flag){
+                            output_file << *it;
+                            cout << *it;
+                            print_flag = false;
+                        }
+                        else{
+                            output_file << ", "<< *it;
+                            cout << ", "<< *it;
+                        }
                     }
                     output_file << "}  (" << inter_set.size() << " / " << it1->second.size() << ")" << endl;
                     cout << "}  (" << inter_set.size() << " / " << it1->second.size() << ")" << endl;
@@ -245,10 +194,6 @@ int main(){
         }    
     }
 
-
-    end = time(NULL);
-    double diff = difftime(end, start);
-    // printf("Time = %f\n", diff);
     system("pause");
     return 0;
 }
