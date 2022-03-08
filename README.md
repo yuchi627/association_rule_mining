@@ -20,5 +20,6 @@ Confidence(A→B) = (Transactions containing both (A and B))/(Transactions conta
 > Example transaction: 39 73 74 75 76 77 78 79 
 
 ## Output the strong association rules 
+* Strong rule: satisfy both minimum support & confidence <br>
 > Example strong association rule: Rule {48} -> {39} Confidence (29142 / 42135)
 
